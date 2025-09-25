@@ -1,9 +1,8 @@
 from sae import SAE
-from extractor import Extractor
 from trainer import SAETrainer
 from dataclasses import dataclass
-from transformers import AutoTokenizer
-from datasets import load_dataset
+from data import load_data, StreamingDatasetWrapper
+from torch.utils.data import DataLoader
 
 # Can dictionary be fixed?
 EXPANSION_FACTOR = 16
@@ -13,33 +12,23 @@ D_SAE = D_MODEL * EXPANSION_FACTOR
 
 @dataclass
 class SAETrainerConfig:
+    d_sae: int = D_SAE
     epochs: int = 1
     learning_rate: float = 1e-3
     sparsity_coef: float = 1e-3
     dataset_name: str = "HuggingFaceFW/fineweb"
-
-
-DATA = ["Test data"] * 1000
-
-
-def load_data(dataset_name):
-    dataset = load_dataset(dataset_name, name="sample-10BT", streaming=True)
-
-    return dataset
+    n_ctx: int = 256
+    batch_size: int = 64
 
 
 def main():
     sae = SAE(D_MODEL, D_SAE)
-    extractor = Extractor("gpt2", "ln_f")
-    tokenizer = AutoTokenizer.from_pretrained("gpt2")
-    data = tokenizer(DATA, return_tensors="pt").input_ids
     config = SAETrainerConfig()
     dataset = load_data(config.dataset_name)
-    # print the first sample from the dataset
-    print(next(iter(dataset)))
-    # activations = extractor.extract(dataset_1000)
-    # trainer = SAETrainer(sae, activations, config)
-    # trainer.train()
+    streaming_dataset = StreamingDatasetWrapper(dataset, config)
+    dataloader = DataLoader(streaming_dataset, batch_size=config.batch_size)
+    trainer = SAETrainer(sae, dataloader, config)
+    trainer.train()
 
 
 if __name__ == "__main__":

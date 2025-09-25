@@ -5,9 +5,9 @@ from tqdm import tqdm
 
 
 class SAETrainer:
-    def __init__(self, sae, activations, config):
+    def __init__(self, sae, dataloader, config):
         self.sae = sae
-        self.model_activations = activations
+        self.dataloader = dataloader
         self.config = config
 
     # Should mean and abs be torch functions?
@@ -20,10 +20,10 @@ class SAETrainer:
         optimizer = AdamW(self.sae.parameters(), lr=self.config.learning_rate)
 
         for epoch in range(self.config.epochs):
-            for sae_input in tqdm(self.model_activations):
+            for i, activations in enumerate(tqdm(self.dataloader)):
                 optimizer.zero_grad()
-                sae_output, sae_hidden = self.sae(sae_input)
-                loss = self.compute_loss(sae_input, sae_output, sae_hidden)
+                sae_output, sae_hidden = self.sae(activations)
+                loss = self.compute_loss(activations, sae_output, sae_hidden)
                 loss.backward()
                 optimizer.step()
                 tqdm.write(f"Epoch {epoch}, Loss: {loss.item()}")

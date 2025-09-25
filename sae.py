@@ -6,7 +6,7 @@ class SAE(nn.Module):
         super().__init__()
         self.d_model = d_model
         self.d_sae = d_sae
-        self.encoder = nn.Linear(d_model, d_sae, bias=True)
+        self.encoder = nn.Linear(d_model, d_sae, bias=True)  # does this auto handle batch dim?
         self.decoder = nn.Linear(d_sae, d_model, bias=True)
         self.relu = nn.ReLU()
 

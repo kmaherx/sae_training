@@ -24,9 +24,6 @@ class Extractor:
             self.hook.remove()
 
     def extract(self, data):
-        # tokenizer = AutoTokenizer.from_pretrained("gpt2")
-        # data = tokenizer(data, return_tensors="pt").input_ids
-
         self.register_hook()
 
         with torch.no_grad():
