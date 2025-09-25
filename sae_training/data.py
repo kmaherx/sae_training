@@ -11,13 +11,13 @@ def load_data(dataset_name):
 
 
 class StreamingDatasetWrapper(IterableDataset):
-    def __init__(self, hf_streaming_dataset, config):
-        self.dataset = hf_streaming_dataset["train"]
+    def __init__(self, hf_streaming_dataset, model, config):
+        self.dataset = hf_streaming_dataset[config.split]
         self.tokenizer = AutoTokenizer.from_pretrained("gpt2")
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.n_ctx = config.n_ctx
         self.config = config
-        self.extractor = Extractor("gpt2", "ln_f", config.device)
+        self.extractor = Extractor(model, "ln_f", config.device)
 
     def __iter__(self):
         for sample in self.dataset:

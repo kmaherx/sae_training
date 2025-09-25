@@ -1,11 +1,10 @@
 # Is it easier with TransformerLens?
-from transformers import AutoModel
 import torch
 
 
 class Extractor:
     def __init__(self, model, layer_name, device):
-        self.model = AutoModel.from_pretrained(model)
+        self.model = model
         self.layer_name = layer_name
         self.device = device
         self.activations = None
