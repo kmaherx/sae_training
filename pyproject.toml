@@ -1,15 +1,18 @@
-[project]
+[tool.poetry]
 name = "sae_training"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = [
-	"torch>=2.8.0",
-	"transformers>=4.56.2",
-	"datasets>=4.1.1",
-	"tqdm>=4.66.4",
-	"dataclasses; python_version<'3.7'"
-]
-[tool.setuptools]
-packages = ["."]
+authors = ["Your Name <your@email.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.12"
+torch = ">=2.8.0"
+transformers = ">=4.56.2"
+datasets = ">=4.1.1"
+tqdm = ">=4.66.4"
+dataclasses = { version = "*", python = "<3.7" }
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
