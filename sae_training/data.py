@@ -16,7 +16,8 @@ class StreamingDatasetWrapper(IterableDataset):
         self.tokenizer = AutoTokenizer.from_pretrained("gpt2")
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.n_ctx = config.n_ctx
-        self.extractor = Extractor("gpt2", "ln_f")
+        self.config = config
+        self.extractor = Extractor("gpt2", "ln_f", config.device)
 
     def __iter__(self):
         for sample in self.dataset:
@@ -27,6 +28,6 @@ class StreamingDatasetWrapper(IterableDataset):
                 truncation=True,
                 padding="max_length",
                 return_tensors="pt",
-            ).input_ids
+            ).input_ids.to(self.config.device)
             activations = self.extractor.extract(data)
             yield activations.squeeze(0)

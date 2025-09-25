@@ -21,6 +21,7 @@ class SAETrainer:
 
         for epoch in range(self.config.epochs):
             for i, activations in enumerate(tqdm(self.dataloader)):
+                activations = activations.to(self.config.device)
                 optimizer.zero_grad()
                 sae_output, sae_hidden = self.sae(activations)
                 loss = self.compute_loss(activations, sae_output, sae_hidden)
