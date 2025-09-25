@@ -48,7 +48,7 @@ def main(
 
     model = AutoModel.from_pretrained(config.model_name)
     d_model = model.config.hidden_size
-    sae = SAE(d_model, d_sae, config)
+    sae = SAE(d_model, config)
 
     dataset = load_data(config.dataset_name)
     streaming_dataset = StreamingDatasetWrapper(dataset, model, config)
