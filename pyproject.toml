@@ -1,5 +1,5 @@
 [project]
-name = "spar-autointerp"
+name = "sae_training"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -12,4 +12,4 @@ dependencies = [
 	"dataclasses; python_version<'3.7'"
 ]
 [tool.setuptools]
-packages = ["sae_training"]
+packages = ["."]
