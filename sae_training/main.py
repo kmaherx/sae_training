@@ -1,4 +1,5 @@
-# TODO: add type hints, some docstrings
+# TODO: calculate and save feature activations
+# TODO: add type hints, some docstrings, refactor config to separate file
 
 import os
 
