@@ -35,9 +35,6 @@ class SAETrainer:
             n_batches_rounded = self.config.n_samples // self.config.batch_size
             n_samples_rounded = n_batches_rounded * self.config.batch_size
             pbar = tqdm(range(n_samples_rounded), desc=f"Training for {n_samples_rounded} samples")
-            print(n_samples_rounded)
-            print(self.config.batch_size)
-            print(n_batches_rounded)
 
             for i in range(n_batches_rounded):
 
