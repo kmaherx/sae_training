@@ -15,16 +15,33 @@ class SAETrainer:
         mse_loss = F.mse_loss(inputs, outputs)
         sparsity_loss = self.config.sparsity_coef * torch.mean(torch.abs(hidden))
         return mse_loss + sparsity_loss
+    
+    def step(self, batch):
+        activations = batch.to(self.config.device)
+        sae_output, sae_hidden = self.sae(activations)
+        loss = self.compute_loss(activations, sae_output, sae_hidden)
+        return loss
 
     def train(self):
+        """Train loop. Returns training losses concatenated across epochs."""
         optimizer = AdamW(self.sae.parameters(), lr=self.config.learning_rate)
+        losses = []
 
-        for epoch in range(self.config.epochs):
-            for i, activations in enumerate(tqdm(self.dataloader)):
-                activations = activations.to(self.config.device)
+        for epoch in range(self.config.n_epochs):
+
+            pbar = tqdm(self.dataloader, desc=f"Training for {self.config.n_samples} samples")
+
+            for i, batch in enumerate(pbar):
+
                 optimizer.zero_grad()
-                sae_output, sae_hidden = self.sae(activations)
-                loss = self.compute_loss(activations, sae_output, sae_hidden)
+                loss = self.step(batch)
                 loss.backward()
                 optimizer.step()
-                tqdm.write(f"Epoch {epoch}, Loss: {loss.item()}")
+
+                losses.append(loss.item())
+                pbar.set_postfix({"batch": i + 1, "loss": loss.item()})
+
+                if i * self.config.batch_size >= self.config.n_samples:
+                    break
+
+        return torch.tensor(losses)

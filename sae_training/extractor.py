@@ -3,9 +3,9 @@ import torch
 
 
 class Extractor:
-    def __init__(self, model, layer_name, device):
+    def __init__(self, model, hook_point, device):
         self.model = model
-        self.layer_name = layer_name
+        self.hook_point = hook_point
         self.device = device
         self.activations = None
         self.hook = None
@@ -17,7 +17,7 @@ class Extractor:
 
     def register_hook(self):
         for name, module in self.model.named_modules():
-            if name == self.layer_name:
+            if name == self.hook_point:
                 self.hook = module.register_forward_hook(self.hook_fn)
 
     def clear_hook(self):

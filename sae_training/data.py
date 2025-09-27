@@ -5,19 +5,20 @@ from datasets import load_dataset
 from torch.utils.data import IterableDataset
 
 
-def load_data(dataset_name):
-    dataset = load_dataset(dataset_name, name="sample-10BT", streaming=True)
+def load_data(dataset_name, split, data_config):
+    dataset = load_dataset(dataset_name, name=data_config, streaming=True, split=split)
     return dataset
 
 
 class StreamingDatasetWrapper(IterableDataset):
-    def __init__(self, hf_streaming_dataset, model, config):
-        self.dataset = hf_streaming_dataset[config.split]
+    def __init__(self, hf_streaming_dataset, model, model_config):
+        self.config = model_config
+        # self.dataset = hf_streaming_dataset[self.config.split]
+        self.dataset = hf_streaming_dataset
         self.tokenizer = AutoTokenizer.from_pretrained("gpt2")
         self.tokenizer.pad_token = self.tokenizer.eos_token
-        self.n_ctx = config.n_ctx
-        self.config = config
-        self.extractor = Extractor(model, "ln_f", config.device)
+        self.n_ctx = self.config.n_ctx
+        self.extractor = Extractor(model, self.config.hook_point, self.config.device)
 
     def __iter__(self):
         for sample in self.dataset:
