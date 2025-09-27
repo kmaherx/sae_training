@@ -23,25 +23,34 @@ class SAETrainer:
         return loss
 
     def train(self):
-        """Train loop. Returns training losses concatenated across epochs."""
+        """
+        Train loop. Returns training losses concatenated across epochs.
+        Rounds n_samples to nearest multiple of batch_size.
+        """
         optimizer = AdamW(self.sae.parameters(), lr=self.config.learning_rate)
         losses = []
 
         for epoch in range(self.config.n_epochs):
 
-            pbar = tqdm(self.dataloader, desc=f"Training for {self.config.n_samples} samples")
+            n_batches_rounded = self.config.n_samples // self.config.batch_size
+            n_samples_rounded = n_batches_rounded * self.config.batch_size
+            pbar = tqdm(range(n_samples_rounded), desc=f"Training for {n_samples_rounded} samples")
+            print(n_samples_rounded)
+            print(self.config.batch_size)
+            print(n_batches_rounded)
 
-            for i, batch in enumerate(pbar):
+            for i in range(n_batches_rounded):
+
+                batch = next(iter(self.dataloader))
+                loss = self.step(batch)
 
                 optimizer.zero_grad()
-                loss = self.step(batch)
                 loss.backward()
                 optimizer.step()
 
                 losses.append(loss.item())
-                pbar.set_postfix({"batch": i + 1, "loss": loss.item()})
-
-                if i * self.config.batch_size >= self.config.n_samples:
-                    break
+                pbar.update(self.config.batch_size)
+                pbar.set_postfix({"samples": (i + 1) * self.config.batch_size, "loss": loss.item()})
+            pbar.close()
 
         return torch.tensor(losses)
