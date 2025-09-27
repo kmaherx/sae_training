@@ -44,7 +44,7 @@ def main(
     split,
     data_config,
     folder_name,
-):
+) -> None:
     config = SAETrainerConfig()
     config.device = device
     config.model_name = model_name
@@ -71,9 +71,18 @@ def main(
     trainer = SAETrainer(sae, dataloader, config)
     losses = trainer.train()
 
-    file_name = f"losses_{config.model_name.replace('/', '_')}_d{config.d_sae}_e{config.n_epochs}_n{config.n_samples}_lr{config.learning_rate}_s{config.sparsity_coef}_{config.hook_point}_{config.data_config}.pt"
-    write_path = os.path.join(file_name, folder_name)
+    file_name = f"losses_{config.model_name.replace('/', '_')}_" + \
+                f"d{config.d_sae}_e{config.n_epochs}_n{config.n_samples}_" + \
+                f"lr{config.learning_rate}_s{config.sparsity_coef}_".replace(".", "-") + \
+                f"{config.hook_point}_ctx{config.n_ctx}_" + \
+                f"bs{config.batch_size}_{config.split}_" + \
+                f"{config.dataset_name.replace('/', '_')}_" + \
+                f"{config.data_config.replace('/', '_')}" + \
+                ".pt"
+    os.makedirs(folder_name, exist_ok=True)
+    write_path = os.path.join(folder_name, file_name)
     torch.save(losses, write_path)
+    print(f"Losses saved to {write_path}")
 
 
 if __name__ == "__main__":
@@ -92,7 +101,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", type=int, default=512)
     parser.add_argument("--split", type=str, default="train")
     parser.add_argument("--data_config", type=str, default="sample-10BT")
-    parser.add_argument("--folder_name", type=str, default="./")
+    parser.add_argument("--folder_name", type=str, default="./data/")
     args = parser.parse_args()
 
     main(
@@ -111,3 +120,5 @@ if __name__ == "__main__":
         args.data_config,
         args.folder_name,
     )
+
+    print("Done")
