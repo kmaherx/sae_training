@@ -35,10 +35,10 @@ class SAETrainer:
             n_batches_rounded = self.config.n_samples // self.config.batch_size
             n_samples_rounded = n_batches_rounded * self.config.batch_size
             pbar = tqdm(range(n_samples_rounded), desc=f"Training for {n_samples_rounded} samples")
+            i = 0
 
-            for i in range(n_batches_rounded):
+            for batch in self.dataloader:
 
-                batch = next(iter(self.dataloader))
                 loss = self.step(batch)
 
                 optimizer.zero_grad()
@@ -48,6 +48,9 @@ class SAETrainer:
                 losses.append(loss.item())
                 pbar.update(self.config.batch_size)
                 pbar.set_postfix({"samples": (i + 1) * self.config.batch_size, "loss": loss.item()})
+                i += 1
+                if i >= n_batches_rounded:
+                    break
             pbar.close()
 
         return torch.tensor(losses)
